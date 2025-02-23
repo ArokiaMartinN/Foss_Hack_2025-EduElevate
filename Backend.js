@@ -18,7 +18,7 @@ mongoose
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
-  .then(() => console.log("✅ MongoDB Connected"))
+  .then(() => console.log("✅ MongoDB Connected Successfully"))
   .catch((err) => console.error("❌ MongoDB Connection Error:", err));
 
 // 🔹 User Schema with Profile Fields
