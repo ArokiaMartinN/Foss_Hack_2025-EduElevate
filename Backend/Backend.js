@@ -14,10 +14,7 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads"))); // Serve p
 
 // 🔹 MongoDB Connection
 mongoose
-  .connect(process.env.MONGO_URI || "mongodb://localhost:27017/authDB", {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect(process.env.MONGO_URI || "mongodb://localhost:27017/authDB")
   .then(() => console.log("✅ MongoDB Connected"))
   .catch((err) => console.error("❌ MongoDB Connection Error:", err));
 
