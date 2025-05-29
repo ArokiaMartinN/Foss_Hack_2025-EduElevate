@@ -6,7 +6,8 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "dev": "expo start"
   },
   "dependencies": {
     "@expo/metro-runtime": "~3.2.3",
@@ -25,7 +26,7 @@
     "expo-location": "~17.0.1",
     "expo-status-bar": "~1.12.1",
     "papaparse": "^5.5.2",
-    "react": "18.3.1",
+    "react": "18.2.0",
     "react-datepicker": "^7.5.0",
     "react-dom": "18.3.1",
     "react-native": "0.74.5",
