@@ -9,8 +9,14 @@ import {
   StyleSheet,
   Image,
   Alert,
+  Dimensions,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { LinearGradient } from 'expo-linear-gradient';
+
+const { width, height } = Dimensions.get('window');
 
 const AuthScreen = ({ navigation }) => {
   const [isLogin, setIsLogin] = useState(true);
@@ -20,34 +26,41 @@ const AuthScreen = ({ navigation }) => {
 
   const fadeAnim = useState(new Animated.Value(0))[0];
   const slideAnim = useState(new Animated.Value(300))[0];
+  const logoAnim = useState(new Animated.Value(0))[0];
 
   useEffect(() => {
     checkLoginStatus();
-    Animated.parallel([
-      Animated.timing(fadeAnim, {
+    Animated.sequence([
+      Animated.timing(logoAnim, {
         toValue: 1,
-        duration: 500,
-        easing: Easing.ease,
+        duration: 1000,
+        easing: Easing.bounce,
         useNativeDriver: true,
       }),
-      Animated.timing(slideAnim, {
-        toValue: 0,
-        duration: 600,
-        easing: Easing.elastic(1.2),
-        useNativeDriver: true,
-      })
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 800,
+          easing: Easing.ease,
+          useNativeDriver: true,
+        }),
+        Animated.timing(slideAnim, {
+          toValue: 0,
+          duration: 800,
+          easing: Easing.elastic(1.2),
+          useNativeDriver: true,
+        })
+      ])
     ]).start();
   }, []);
 
-  // Check if the user is already logged in
   const checkLoginStatus = async () => {
     const token = await AsyncStorage.getItem("token");
     if (token) {
-      navigation.replace("Dashboard"); // Navigate to the home screen if logged in
+      navigation.replace("Dashboard");
     }
   };
 
-  // Handle Login/Register logic
   const handleAuth = async () => {
     if (!email || !password || (!isLogin && password !== confirmPassword)) {
       Alert.alert("Error", "Please fill in all fields correctly.");
@@ -68,7 +81,7 @@ const AuthScreen = ({ navigation }) => {
       if (response.ok) {
         if (isLogin) {
           await AsyncStorage.setItem("token", result.token);
-          navigation.replace("Dashboard"); // Navigate to Home/Dashboard
+          navigation.replace("Dashboard");
         } else {
           Alert.alert("Success", "User Registered! Please Login.");
           setIsLogin(true);
@@ -82,44 +95,155 @@ const AuthScreen = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <Image source={require("./CIT Logo.jpeg")} style={styles.logo} />
-      <Text style={styles.appName}>EduElevate</Text>
-      <Animated.View style={[styles.box, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}> 
-        <Text style={styles.title}>{isLogin ? "Login" : "Register"}</Text>
-        <TextInput style={styles.input} placeholder="Email" value={email} onChangeText={setEmail} />
-        <TextInput style={styles.input} placeholder="Password" secureTextEntry value={password} onChangeText={setPassword} />
-        {!isLogin && (
+    <LinearGradient
+      colors={['#1565C0', '#1976D2', '#2196F3']}
+      style={styles.container}
+    >
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={styles.container}
+      >
+        <Animated.View style={[styles.logoContainer, { opacity: logoAnim }]}>
+          <Image source={require("./CIT Logo.jpeg")} style={styles.logo} />
+          <Text style={styles.appName}>EduElevate</Text>
+          <Text style={styles.tagline}>Empowering Education, Elevating Futures</Text>
+        </Animated.View>
+
+        <Animated.View 
+          style={[
+            styles.box, 
+            { 
+              opacity: fadeAnim, 
+              transform: [{ translateY: slideAnim }],
+            }
+          ]}
+        >
+          <Text style={styles.title}>{isLogin ? "Welcome Back!" : "Create Account"}</Text>
           <TextInput
             style={styles.input}
-            placeholder="Confirm Password"
-            secureTextEntry
-            value={confirmPassword}
-            onChangeText={setConfirmPassword}
+            placeholder="Email"
+            placeholderTextColor="#90CAF9"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
           />
-        )}
-        <TouchableOpacity style={styles.button} onPress={handleAuth}>
-          <Text style={styles.buttonText}>{isLogin ? "Login" : "Register"}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => setIsLogin(!isLogin)}>
-          <Text style={styles.switchText}>{isLogin ? "Create an account" : "Already have an account? Login"}</Text>
-        </TouchableOpacity>
-      </Animated.View>
-    </View>
+          <TextInput
+            style={styles.input}
+            placeholder="Password"
+            placeholderTextColor="#90CAF9"
+            secureTextEntry
+            value={password}
+            onChangeText={setPassword}
+          />
+          {!isLogin && (
+            <TextInput
+              style={styles.input}
+              placeholder="Confirm Password"
+              placeholderTextColor="#90CAF9"
+              secureTextEntry
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+            />
+          )}
+          <TouchableOpacity style={styles.button} onPress={handleAuth}>
+            <Text style={styles.buttonText}>{isLogin ? "Login" : "Register"}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => setIsLogin(!isLogin)}>
+            <Text style={styles.switchText}>
+              {isLogin ? "New user? Create an account" : "Already have an account? Login"}
+            </Text>
+          </TouchableOpacity>
+        </Animated.View>
+      </KeyboardAvoidingView>
+    </LinearGradient>
   );
 };
 
-// Styles
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#E3F2FD", justifyContent: "center", alignItems: "center" },
-  logo: { width: 100, height: 100, marginBottom: 20, borderRadius: 5 },
-  appName: { fontSize: 32, fontWeight: "bold", color: "#1565C0", marginBottom: 20 },
-  box: { width: "80%", padding: 20, backgroundColor: "#FFFFFF", borderRadius: 15, shadowColor: "#000", shadowOpacity: 0.2, shadowRadius: 10, elevation: 10 },
-  title: { fontSize: 28, fontWeight: "bold", color: "#1565C0", textAlign: "center", marginBottom: 20 },
-  input: { backgroundColor: "#BBDEFB", color: "#0D47A1", padding: 12, marginBottom: 10, borderRadius: 8, width: "100%" },
-  button: { backgroundColor: "#1E88E5", padding: 12, borderRadius: 8, alignItems: "center", marginTop: 10, width: "100%" },
-  buttonText: { color: "#FFFFFF", fontSize: 18, fontWeight: "bold" },
-  switchText: { color: "#1565C0", textAlign: "center", marginTop: 15, fontSize: 16 },
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  logoContainer: {
+    alignItems: "center",
+    marginBottom: 40,
+  },
+  logo: {
+    width: width * 0.35,
+    height: width * 0.35,
+    borderRadius: width * 0.175,
+    borderWidth: 3,
+    borderColor: '#FFFFFF',
+  },
+  appName: {
+    fontSize: 36,
+    fontWeight: "bold",
+    color: "#FFFFFF",
+    marginTop: 20,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 5,
+  },
+  tagline: {
+    fontSize: 16,
+    color: "#E3F2FD",
+    marginTop: 10,
+    fontStyle: "italic",
+  },
+  box: {
+    width: width * 0.9,
+    padding: 25,
+    backgroundColor: "rgba(255, 255, 255, 0.95)",
+    borderRadius: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 8,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#1565C0",
+    textAlign: "center",
+    marginBottom: 25,
+  },
+  input: {
+    backgroundColor: "#E3F2FD",
+    color: "#1565C0",
+    padding: 15,
+    marginBottom: 15,
+    borderRadius: 12,
+    fontSize: 16,
+    borderWidth: 1,
+    borderColor: "#BBDEFB",
+  },
+  button: {
+    backgroundColor: "#1565C0",
+    padding: 15,
+    borderRadius: 12,
+    alignItems: "center",
+    marginTop: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  buttonText: {
+    color: "#FFFFFF",
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  switchText: {
+    color: "#1565C0",
+    textAlign: "center",
+    marginTop: 20,
+    fontSize: 16,
+    textDecorationLine: "underline",
+  },
 });
 
 export default AuthScreen;
