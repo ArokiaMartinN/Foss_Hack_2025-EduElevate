@@ -1,4 +1,4 @@
-# EduElevat
+# EduElevate
 Academic Progress System:
 
 “EduElevate”, Our proposed solution as a Mobile Application that helps students to track their grades, attendance, internal assessment (IA) marks and CGPA trends through clear and precise visuals of their academic history, providing personalized guidance on how much they need to score in future semesters to achieve their desired CGPA based on AI.
